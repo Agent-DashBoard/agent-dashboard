@@ -6,6 +6,7 @@
 
 import { useState } from 'react'
 import { MemoryCard } from '@/components/MemoryCard'
+import { MemorySearchResults } from '@/components/MemorySearchResults'
 import { Search, Filter } from 'lucide-react'
 
 // Mock memory data
@@ -103,54 +104,68 @@ export default function MemoryPage() {
         </p>
       </div>
 
-      {/* Search Bar */}
-      <div className="relative">
-        <Search className="absolute left-3 top-3 text-zinc-500" size={18} />
-        <input
-          type="text"
-          placeholder="Search memories..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="w-full pl-10 pr-4 py-2 rounded-lg border border-zinc-800 bg-zinc-900/50 text-white placeholder-zinc-500 focus:outline-none focus:border-blue-500/50 focus:bg-zinc-900/80 transition-all"
-        />
-      </div>
-
-      {/* Filter Tabs */}
-      <div className="flex gap-2 flex-wrap">
-        {(['all', 'active', 'archived', 'important'] as const).map((filter) => (
-          <button
-            key={filter}
-            onClick={() => setSelectedFilter(filter)}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-              selectedFilter === filter
-                ? 'bg-blue-600 text-white'
-                : 'bg-zinc-800/50 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-300'
-            }`}
-          >
-            {filter.charAt(0).toUpperCase() + filter.slice(1)}
-          </button>
-        ))}
-      </div>
-
-      {/* Memory Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filteredMemories.length > 0 ? (
-          filteredMemories.map((memory) => (
-            <MemoryCard key={memory.id} {...memory} />
-          ))
-        ) : (
-          <div className="col-span-full text-center py-12">
-            <p className="text-zinc-500">Tidak ada memories yang cocok.</p>
+      {/* Two-Column Layout */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Semantic Search - Left Column */}
+        <div className="lg:col-span-1">
+          <div className="sticky top-20 space-y-3">
+            <h2 className="text-lg font-semibold text-white">Semantic Search</h2>
+            <p className="text-xs text-zinc-500">Find memories with intelligent similarity matching</p>
+            <MemorySearchResults />
           </div>
-        )}
-      </div>
+        </div>
 
-      {/* Stats */}
-      <div className="pt-4 border-t border-zinc-800">
-        <p className="text-xs text-zinc-500">
-          Menampilkan {filteredMemories.length} dari {MOCK_MEMORIES.length}{' '}
-          memories
-        </p>
+        {/* Memory List - Right Column */}
+        <div className="lg:col-span-2 space-y-4">
+          {/* Search Bar */}
+          <div className="relative">
+            <Search className="absolute left-3 top-3 text-zinc-500" size={18} />
+            <input
+              type="text"
+              placeholder="Search memories..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 rounded-lg border border-zinc-800 bg-zinc-900/50 text-white placeholder-zinc-500 focus:outline-none focus:border-blue-500/50 focus:bg-zinc-900/80 transition-all"
+            />
+          </div>
+
+          {/* Filter Tabs */}
+          <div className="flex gap-2 flex-wrap">
+            {(['all', 'active', 'archived', 'important'] as const).map((filter) => (
+              <button
+                key={filter}
+                onClick={() => setSelectedFilter(filter)}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                  selectedFilter === filter
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-zinc-800/50 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-300'
+                }`}
+              >
+                {filter.charAt(0).toUpperCase() + filter.slice(1)}
+              </button>
+            ))}
+          </div>
+
+          {/* Memory Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {filteredMemories.length > 0 ? (
+              filteredMemories.map((memory) => (
+                <MemoryCard key={memory.id} {...memory} />
+              ))
+            ) : (
+              <div className="col-span-full text-center py-12">
+                <p className="text-zinc-500">Tidak ada memories yang cocok.</p>
+              </div>
+            )}
+          </div>
+
+          {/* Stats */}
+          <div className="pt-4 border-t border-zinc-800">
+            <p className="text-xs text-zinc-500">
+              Menampilkan {filteredMemories.length} dari {MOCK_MEMORIES.length} memories
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   )
