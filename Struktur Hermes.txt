@@ -1,0 +1,36 @@
+AGENT-DASHBOARD/
+└── src/
+    ├── app/ 
+    │   ├── api/
+    │   │
+    │   ├── memory/
+    │   │   └── page.tsx
+    │   │
+    │   ├── skills/
+    │   │   └── page.tsx
+    │   │
+    │   ├── activity/
+    │   │   └── page.tsx
+    │   │
+    │   ├── agents/
+    │   │   └── page.tsx
+    │   │
+    │   ├── globals.css 
+    │   ├── layout.tsx    
+    │   └── page.tsx     
+    │
+    ├── components/
+    │   ├── Sidebar.tsx
+    │   ├── PageWrapper.tsx
+    │   ├── StatCard.tsx
+    │   └── Topbar.tsx
+    │
+    ├── lib/
+    │   └─── supabase.ts
+    │
+    ├── hooks/
+    │   └── gitkeep
+    └── lib/
+
+
+    Pasword SupaBase : Cipandan.86
