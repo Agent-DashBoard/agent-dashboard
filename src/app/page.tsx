@@ -1,69 +1,136 @@
-// # NOTE PENANDA: Halaman Home, versi final dengan detail di panel Subscriptions.
+// NOTE PENANDA: ROOT_HOME_PAGE_v1.0
+// Home page - HERMES JARVIS OS dashboard (root entry point)
+// Menampilkan ChatPanel + quick stats + agent status
 
-import { PageWrapper } from "@/components/PageWrapper";
-import { StatCard } from "@/components/StatCard";
-import { DollarSign, Zap, BarChart, CreditCard, PieChart } from "lucide-react";
+'use client'
 
-// # NOTE PENANDA: Data bohongan untuk daftar langganan.
-// Nanti ini akan kita ambil dari database.
-const subscriptions = [
-  { name: "Claude Pro Max", cost: 200, logo: "A" },
-  { name: "ChatGPT Plus", cost: 20, logo: "G" },
-  { name: "Gemini Advanced", cost: 20, logo: "G" },
-];
-const flatMonthlySpend = subscriptions.reduce((sum, sub) => sum + sub.cost, 0);
+import { ChatPanel } from '@/components/ChatPanel'
+import { TrendingUp, Zap, Activity, Users } from 'lucide-react'
 
 export default function HomePage() {
   return (
-    <PageWrapper
-      title="Home"
-      subtitle="Ringkasan aktivitas hari ini."
-    >
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <StatCard title="SPENT ON AI" value="$174.40" icon={DollarSign} colorClassName="text-red-500" />
-        <StatCard title="SKILLS SAVED" value="$241,600" icon={Zap} colorClassName="text-blue-500" />
-        <StatCard title="NET ROI" value="+$241,426" icon={BarChart} colorClassName="text-green-500" />
+    <div className="space-y-6">
+      {/* Header */}
+      <div>
+        <h1 className="text-3xl font-bold text-white">Dashboard</h1>
+        <p className="text-sm text-zinc-400 mt-1">
+          Selamat datang di HERMES JARVIS OS — AI Agent Management System
+        </p>
       </div>
 
-      <div className="mt-10 grid grid-cols-1 lg:grid-cols-5 gap-6">
-        {/* Kolom Kiri - Subscriptions */}
-        <div className="lg:col-span-3 bg-zinc-900 border border-zinc-800 rounded-lg p-6">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center space-x-3">
-              <CreditCard className="h-5 w-5 text-zinc-400" />
-              <h2 className="text-xl font-semibold">Subscriptions</h2>
+      {/* Quick Stats */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs text-zinc-500">Agents Active</p>
+              <p className="text-2xl font-bold text-white mt-1">3</p>
             </div>
-            <div className="text-sm text-zinc-400">
-              Flat monthly spend: <span className="font-semibold text-white">${flatMonthlySpend}</span>
-            </div>
+            <Users className="text-blue-500" size={24} />
           </div>
+        </div>
 
-          {/* # NOTE PENANDA: Looping untuk menampilkan setiap item langganan */}
-          <div className="space-y-4">
-            {subscriptions.map((sub) => (
-              <div key={sub.name} className="flex items-center justify-between p-3 rounded-md bg-zinc-800/50">
-                <div className="flex items-center space-x-3">
-                  <div className="w-8 h-8 bg-zinc-700 rounded-full flex items-center justify-center font-bold">
-                    {sub.logo}
-                  </div>
-                  <span className="font-medium">{sub.name}</span>
-                </div>
-                <span className="font-mono text-lg">${sub.cost}</span>
+        <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs text-zinc-500">Skills Loaded</p>
+              <p className="text-2xl font-bold text-white mt-1">11</p>
+            </div>
+            <Zap className="text-yellow-500" size={24} />
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs text-zinc-500">Activities Today</p>
+              <p className="text-2xl font-bold text-white mt-1">8</p>
+            </div>
+            <Activity className="text-green-500" size={24} />
+          </div>
+        </div>
+
+        <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs text-zinc-500">API Cost Today</p>
+              <p className="text-2xl font-bold text-white mt-1">$0.024</p>
+            </div>
+            <TrendingUp className="text-purple-500" size={24} />
+          </div>
+        </div>
+      </div>
+
+      {/* Main Content: Chat + Info */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Chat Panel - Takes 2 columns */}
+        <div className="lg:col-span-2">
+          <ChatPanel />
+        </div>
+
+        {/* Right Sidebar - Quick Info */}
+        <div className="space-y-4">
+          {/* Agent Status */}
+          <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4">
+            <h3 className="text-sm font-semibold text-white mb-3">Agent Status</h3>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-zinc-400">HERMES-AGENT</span>
+                <span className="inline-flex items-center gap-1 text-xs">
+                  <span className="w-2 h-2 rounded-full bg-green-500"></span>
+                  Online
+                </span>
               </div>
-            ))}
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-zinc-400">OPENCLAW</span>
+                <span className="inline-flex items-center gap-1 text-xs">
+                  <span className="w-2 h-2 rounded-full bg-zinc-500"></span>
+                  Offline
+                </span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-zinc-400">CODE-GENIUS</span>
+                <span className="inline-flex items-center gap-1 text-xs">
+                  <span className="w-2 h-2 rounded-full bg-yellow-500"></span>
+                  Busy
+                </span>
+              </div>
+            </div>
           </div>
 
-        </div>
-
-        {/* Kolom Kanan - Live Usage */}
-        <div className="lg:col-span-2 bg-zinc-900 border border-zinc-800 rounded-lg p-6">
-          <div className="flex items-center space-x-3 mb-4">
-            <PieChart className="h-5 w-5 text-zinc-400" />
-            <h2 className="text-xl font-semibold">Live Usage</h2>
+          {/* Quick Actions */}
+          <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4">
+            <h3 className="text-sm font-semibold text-white mb-3">Quick Actions</h3>
+            <div className="space-y-2">
+              <button className="w-full px-3 py-2 rounded-lg bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 text-xs font-medium transition-colors">
+                Run All Agents
+              </button>
+              <button className="w-full px-3 py-2 rounded-lg bg-zinc-800/50 text-zinc-400 hover:bg-zinc-700/50 text-xs font-medium transition-colors">
+                View Logs
+              </button>
+            </div>
           </div>
-          <p className="text-zinc-400">Konten grafik penggunaan akan ada di sini...</p>
+
+          {/* System Info */}
+          <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4">
+            <h3 className="text-sm font-semibold text-white mb-3">System Info</h3>
+            <div className="space-y-2 text-xs text-zinc-400">
+              <div className="flex justify-between">
+                <span>Database</span>
+                <span className="text-green-400">Connected</span>
+              </div>
+              <div className="flex justify-between">
+                <span>API Status</span>
+                <span className="text-yellow-400">Mock Mode</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Memory</span>
+                <span className="text-blue-400">Ready</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </PageWrapper>
-  );
+    </div>
+  )
 }

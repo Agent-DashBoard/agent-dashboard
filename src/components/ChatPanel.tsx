@@ -1,11 +1,12 @@
-// NOTE PENANDA: CHAT_PANEL_COMPONENT_v1.0
+// NOTE PENANDA: CHAT_PANEL_COMPONENT_v1.0_WITH_ERROR_HANDLING
 // Interactive chat UI component untuk HERMES JARVIS OS
-// Send messages, display responses, track costs
+// Send messages, display responses, track costs, error handling
 
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { Send, Loader2, AlertCircle } from 'lucide-react'
+import { Send, Loader2, AlertCircle, RefreshCw, X } from 'lucide-react'
+import { LoadingSpinner } from './LoadingSpinner'
 
 interface Message {
   id: string
@@ -148,9 +149,18 @@ export function ChatPanel() {
 
         {error && (
           <div className="flex justify-start">
-            <div className="bg-red-500/20 border border-red-500/50 px-4 py-2 rounded-lg flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 text-red-400" />
-              <span className="text-sm text-red-300">{error}</span>
+            <div className="bg-red-500/20 border border-red-500/50 px-4 py-2 rounded-lg flex items-center gap-2 max-w-xs">
+              <AlertCircle className="w-4 h-4 text-red-400 flex-shrink-0" />
+              <div className="flex-1">
+                <p className="text-sm text-red-300 font-medium">Error</p>
+                <p className="text-xs text-red-400 mt-0.5">{error}</p>
+              </div>
+              <button
+                onClick={() => setError(null)}
+                className="text-red-400 hover:text-red-300 transition-colors ml-2"
+              >
+                <X className="w-4 h-4" />
+              </button>
             </div>
           </div>
         )}
