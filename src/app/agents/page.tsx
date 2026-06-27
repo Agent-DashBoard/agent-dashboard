@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { PageWrapper } from "@/components/PageWrapper";
 import { Zap } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+import { AgentTaskPanel } from "@/components/AgentTaskPanel";
 
 type Agent = {
   id: string;
@@ -80,20 +81,32 @@ export default function AgentsPage() {
       title="Agents"
       subtitle="Markas besar untuk semua AI Agent Anda yang siap tempur."
     >
-      {loading && <p className="text-zinc-400">Loading agents...</p>}
-      {error && <p className="text-red-500">Error: {error}</p>}
+      <div className="space-y-8">
+        {/* Agents List Section */}
+        <div>
+          <h2 className="text-lg font-semibold text-white mb-4">Registered Agents</h2>
+          {loading && <p className="text-zinc-400">Loading agents...</p>}
+          {error && <p className="text-red-500">Error: {error}</p>}
 
-      {!loading && agents.length === 0 && (
-        <p className="text-zinc-400">Tidak ada agents.</p>
-      )}
+          {!loading && agents.length === 0 && (
+            <p className="text-zinc-400">Tidak ada agents.</p>
+          )}
 
-      {!loading && agents.length > 0 && (
-        <div className="space-y-6">
-          {agents.map((agent) => (
-            <AgentCard key={agent.id} {...agent} />
-          ))}
+          {!loading && agents.length > 0 && (
+            <div className="space-y-6">
+              {agents.map((agent) => (
+                <AgentCard key={agent.id} {...agent} />
+              ))}
+            </div>
+          )}
         </div>
-      )}
+
+        {/* Task Execution Section */}
+        <div className="border-t border-zinc-800 pt-8">
+          <h2 className="text-lg font-semibold text-white mb-4">Execute Tasks</h2>
+          <AgentTaskPanel />
+        </div>
+      </div>
     </PageWrapper>
   );
 }
