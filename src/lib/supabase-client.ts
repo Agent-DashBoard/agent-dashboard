@@ -71,9 +71,59 @@ export interface Skill {
   id: string
   name: string
   description: string
-  category: string
+  category: 'coding' | 'writing' | 'system' | 'creative' | 'research' // Contoh kategori
+  config: Record<string, any> | null // Konfigurasi skill dalam bentuk JSON
+  status: 'active' | 'inactive' | 'deprecated'
+  icon: string | null // Nama icon dari LucideReact atau sejenisnya
   created_at: string
+  updated_at: string
 }
+
+export type Database = {
+  public: {
+    Tables: {
+      agents: {
+        Row: Agent
+        Insert: Omit<Agent, 'id' | 'created_at'>
+        Update: Partial<Omit<Agent, 'id' | 'created_at'>>
+      }
+      memories: {
+        Row: Memory
+        Insert: Omit<Memory, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Omit<Memory, 'id' | 'created_at'>>
+      }
+      skills: { // Tambahkan tabel skills di sini
+        Row: Skill
+        Insert: Omit<Skill, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Omit<Skill, 'id' | 'created_at'>>
+      }
+      activities: {
+        Row: Activity
+        Insert: Omit<Activity, 'id' | 'created_at'>
+        Update: Partial<Omit<Activity, 'id' | 'created_at'>>
+      }
+      chat_messages: {
+        Row: ChatMessage
+        Insert: Omit<ChatMessage, 'id' | 'created_at'>
+        Update: Partial<Omit<ChatMessage, 'id' | 'created_at'>>
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      [_ in never]: never
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
+}
+
+
 
 export interface Activity {
   id: string

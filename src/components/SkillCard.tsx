@@ -1,84 +1,89 @@
-// NOTE PENANDA: SKILL_CARD_COMPONENT_v1.0
-// Reusable skill card component untuk Skills page
-// Menampilkan skill details: nama, deskripsi, tags, version
+// NOTE PENANDA: SkillCard_v1.0
+// Reusable component untuk menampilkan informasi skill dalam bentuk card.
 
-import { Badge } from '@/components/ui/badge'
-import { Code2 } from 'lucide-react'
+'use client';
+
+import {
+  Code,
+  PenTool,
+  BrainCircuit,
+  Puzzle,
+  ImageIcon,
+  Search,
+  Settings,
+  Edit,
+  Trash2,
+  Eye,
+  XCircle
+} from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import type { Skill } from '@/lib/supabase-client';
+
+// Map kategori ke ikon Lucide
+const categoryIcons: { [key: string]: React.ElementType } = {
+  coding: Code,
+  writing: PenTool,
+  system: BrainCircuit,
+  creative: ImageIcon, // Contoh icon untuk creative
+  research: Search,    // Contoh icon untuk research
+  default: Puzzle,     // Icon default jika kategori tidak ditemukan
+};
+
+// Map status ke warna
+const statusConfig: { [key: string]: { bg: string; text: string; label: string } } = {
+  active: { bg: 'bg-green-500/20', text: 'text-green-400', label: 'Aktif' },
+  inactive: { bg: 'bg-zinc-500/20', text: 'text-zinc-400', label: 'Tidak Aktif' },
+  deprecated: { bg: 'bg-red-500/20', text: 'text-red-400', label: 'Usang' },
+};
 
 interface SkillCardProps {
-  id: string
-  name: string
-  description: string
-  tags: string[]
-  version: string
-  category: string
-  author: string
+  skill: Skill;
+  onView: (skillId: string) => void;
+  onEdit: (skillId: string) => void;
+  onDelete: (skillId: string) => void;
 }
 
-export function SkillCard({
-  id,
-  name,
-  description,
-  tags,
-  version,
-  category,
-  author,
-}: SkillCardProps) {
+export function SkillCard({ skill, onView, onEdit, onDelete }: SkillCardProps) {
+  const { id, name, description, category, status, icon } = skill;
+
+  // Dapatkan ikon berdasarkan kategori atau nama ikon yang disimpan
+  const IconComponent = icon && (categoryIcons as any)[icon] ? (categoryIcons as any)[icon] : categoryIcons[category] || categoryIcons.default;
+  const currentStatus = statusConfig[status] || statusConfig.inactive;
+
   return (
-    <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4 hover:border-zinc-700 hover:bg-zinc-900/80 transition-all duration-200 group">
-      {/* Header: Icon + Name + Version */}
-      <div className="flex items-start justify-between mb-3">
-        <div className="flex items-start gap-3 flex-1">
-          <div className="p-2 rounded-lg bg-blue-600/20 text-blue-400 mt-0.5">
-            <Code2 size={18} />
-          </div>
-          <div className="flex-1">
-            <h3 className="text-sm font-semibold text-white">{name}</h3>
-            <p className="text-xs text-zinc-500 mt-0.5">v{version}</p>
-          </div>
-        </div>
+    <div className="group relative rounded-lg border border-zinc-800 bg-zinc-900/50 p-6 transition-all duration-200 hover:border-blue-700 hover:bg-zinc-900/80 hover:shadow-lg hover:shadow-blue-500/20 flex flex-col justify-between h-full">
+      {/* Header */}
+      <div className="mb-4 flex items-start justify-between">
+        <h3 className="flex-1 pr-2 text-xl font-bold text-white">{name}</h3>
+        {IconComponent && <IconComponent className="h-6 w-6 text-zinc-500" />}
       </div>
 
       {/* Description */}
-      <p className="text-xs text-zinc-400 line-clamp-2 mb-3">{description}</p>
+      <p className="mb-4 flex-grow text-sm text-zinc-400 line-clamp-3">
+        {description || 'Tidak ada deskripsi tersedia.'}
+      </p>
 
-      {/* Category + Author */}
-      <div className="flex items-center gap-2 mb-3 text-xs text-zinc-500">
-        <Badge
-          variant="outline"
-          className="bg-zinc-800/30 border-zinc-700 text-zinc-400"
-        >
-          {category}
+      {/* Footer: Category & Status */}
+      <div className="flex items-center justify-between pt-3 border-t border-zinc-800 mt-auto">
+        <Badge className={`border-0 text-xs ${currentStatus.bg} ${currentStatus.text}`}>
+          {currentStatus.label}
         </Badge>
-        <span className="text-zinc-600">by {author}</span>
-      </div>
-
-      {/* Tags */}
-      <div className="flex flex-wrap gap-1 mb-3">
-        {tags.slice(0, 4).map((tag) => (
-          <span
-            key={tag}
-            className="text-xs px-2 py-0.5 rounded bg-zinc-800/50 text-zinc-300 hover:bg-zinc-700/50 cursor-pointer transition-colors"
-          >
-            {tag}
-          </span>
-        ))}
-        {tags.length > 4 && (
-          <span className="text-xs px-2 py-0.5 text-zinc-500">
-            +{tags.length - 4}
-          </span>
-        )}
-      </div>
-
-      {/* Action Buttons */}
-      <div className="flex gap-2 pt-3 border-t border-zinc-800 opacity-0 group-hover:opacity-100 transition-opacity">
-        <button className="flex-1 text-xs py-1.5 rounded bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 transition-colors">
-          View Details
-        </button>
-        <button className="flex-1 text-xs py-1.5 rounded bg-zinc-800/50 text-zinc-400 hover:bg-zinc-700/50 transition-colors">
-          Use
-        </button>
+        <div className="flex gap-2">
+          <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-zinc-400 hover:text-white hover:bg-zinc-800"
+            onClick={(e) => { e.stopPropagation(); onView(id); }}>
+            <Eye size={16} />
+          </Button>
+          <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-zinc-400 hover:text-white hover:bg-zinc-800"
+            onClick={(e) => { e.stopPropagation(); onEdit(id); }}>
+            <Edit size={16} />
+          </Button>
+          <Button variant="destructive" size="sm" className="h-7 w-7 p-0 bg-red-600 hover:bg-red-700 text-white shadow-md shadow-red-500/20"
+            onClick={(e) => { e.stopPropagation(); onDelete(id); }}>
+            <Trash2 size={16} />
+          </Button>
+        </div>
       </div>
     </div>
-  )
+  );
 }
