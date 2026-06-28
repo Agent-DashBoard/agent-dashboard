@@ -64,57 +64,75 @@ export default function MemoryPage() {
 
       {/* Two-Column Layout */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Semantic Search - Left Column */}
         <div className="lg:col-span-1">
-          <div className="sticky top-20 space-y-3">
-            <h2 className="text-lg font-semibold text-white">Semantic Search</h2>
-            <p className="text-xs text-zinc-500">Find memories with intelligent similarity matching</p>
+          <div className="sticky top-20 space-y-4">
+            <h2 className="text-xl font-bold text-white">Semantic Search</h2>
+            <p className="text-sm text-zinc-400">
+              Temukan ingatan dengan pencarian cerdas berbasis kesamaan makna.
+            </p>
+            {/* Filter Tabs */}
+            <div className="flex flex-col gap-2">
+              <span className="text-sm text-zinc-500">Filter Status:</span>
+              <div className="flex gap-2 flex-wrap">
+                {(['all', 'active', 'archived', 'important'] as const).map(
+                  (filter) => (
+                    <button
+                      key={filter}
+                      onClick={() => setSelectedFilter(filter)}
+                      className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
+                        selectedFilter === filter
+                          ? 'bg-blue-600 text-white'
+                          : 'bg-zinc-800/50 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-300'
+                      }`}
+                    >
+                      {filter.charAt(0).toUpperCase() + filter.slice(1)}
+                    </button>
+                  )
+                )}
+              </div>
+            </div>
+            <div className="relative mt-4">
+              <Search className="absolute left-3 top-3 text-zinc-500" size={18} />
+              <input
+                type="text"
+                placeholder="Cari ingatan..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 rounded-lg border border-zinc-800 bg-zinc-900/50 text-white placeholder-zinc-500 focus:outline-none focus:border-blue-500/50 focus:bg-zinc-900/80 transition-all"
+              />
+            </div>
             <MemorySearchResults />
           </div>
         </div>
 
         {/* Memory List - Right Column */}
         <div className="lg:col-span-2 space-y-4">
-          {/* Search Bar */}
+          {/* Main Search Bar (for filtering displayed memories) */}
           <div className="relative">
             <Search className="absolute left-3 top-3 text-zinc-500" size={18} />
             <input
               type="text"
-              placeholder="Search memories..."
+              placeholder="Cari cepat berdasarkan judul, konten, atau tag..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-4 py-2 rounded-lg border border-zinc-800 bg-zinc-900/50 text-white placeholder-zinc-500 focus:outline-none focus:border-blue-500/50 focus:bg-zinc-900/80 transition-all"
             />
           </div>
 
-          {/* Filter Tabs */}
-          <div className="flex gap-2 flex-wrap">
-            {(['all', 'active', 'archived', 'important'] as const).map((filter) => (
-              <button
-                key={filter}
-                onClick={() => setSelectedFilter(filter)}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-all ${
-                  selectedFilter === filter
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-zinc-800/50 text-zinc-400 hover:bg-zinc-800 hover:text-zinc-300'
-                }`}
-              >
-                {filter.charAt(0).toUpperCase() + filter.slice(1)}
-              </button>
-            ))}
-          </div>
+          {loading && <LoadingSpinner text="Memuat ingatan dari Supabase..." />}
 
-          {/* Memory Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {loading && <LoadingSpinner text="Loading memories from Supabase..." />}
           {error && (
             <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-300">
-              Error: {error}
+              Terjadi kesalahan: {error}
             </div>
           )}
 
           {!loading && filteredMemories.length === 0 && (
-            <p className="text-zinc-400">Tidak ada memories yang cocok.</p>
+            <div className="flex flex-col items-center justify-center p-8 text-zinc-500">
+              <Filter className="w-12 h-12 mb-4" />
+              <p className="text-lg font-semibold">Tidak ada ingatan yang cocok</p>
+              <p className="text-sm">Coba sesuaikan pencarian atau filter Anda.</p>
+            </div>
           )}
 
           {!loading && filteredMemories.length > 0 && (
@@ -124,14 +142,15 @@ export default function MemoryPage() {
               ))}
             </div>
           )}
-          </div>
 
           {/* Stats */}
-          <div className="pt-4 border-t border-zinc-800">
-            <p className="text-xs text-zinc-500">
-              Menampilkan {filteredMemories.length} dari {memories.length} memories
-            </p>
-          </div>
+          {!loading && (
+            <div className="pt-4 border-t border-zinc-800 text-right">
+              <p className="text-xs text-zinc-500">
+                Menampilkan {filteredMemories.length} dari {memories.length} ingatan
+              </p>
+            </div>
+          )}
         </div>
       </div>
     </div>
