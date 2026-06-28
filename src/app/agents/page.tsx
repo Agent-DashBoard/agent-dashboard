@@ -14,7 +14,7 @@ import { EditAgentModal } from "@/components/EditAgentModal"; // Import modal Ed
 import { DeleteAgentConfirm } from "@/components/DeleteAgentConfirm"; // Import modal Delete
 
 import { AgentTaskPanel } from "@/components/AgentTaskPanel";
-import { getAgents, updateAgent, deleteAgent } from "@/lib/queries/agents"; // Import updateAgent dan deleteAgent
+import { getAgents, updateAgent, deleteAgent, subscribeToAgents } from "@/lib/queries/agents"; // Import updateAgent, deleteAgent, dan subscribeToAgents
 import type { Agent } from "@/lib/supabase-client";
 
 // AgentCard component didefinisikan di sini atau di file terpisah,
@@ -107,6 +107,46 @@ export default function AgentsPage() {
     };
 
     fetchAgents();
+
+    // NOTE PENANDA: Integrasi Realtime Supabase
+    const handleRealtimeUpdate = (payload: {eventType: string, new: Agent | null, old: Agent | null, errors: any[] | null}) => {
+      setAgents((prevAgents) => {
+        switch (payload.eventType) {
+          case 'INSERT':
+            if (payload.new) {
+              const newAgent = payload.new as Agent;
+              // Mencegah duplikasi jika sudah dihandle oleh onAgentCreated
+              if (!prevAgents.some(agent => agent.id === newAgent.id)) {
+                return [...prevAgents, newAgent];
+              }
+            }
+            break;
+          case 'UPDATE':
+            if (payload.new) {
+              return prevAgents.map((agent) =>
+                agent.id === (payload.new as Agent).id ? (payload.new as Agent) : agent
+              );
+            }
+            break;
+          case 'DELETE':
+            if (payload.old) {
+              return prevAgents.filter((agent) => agent.id !== (payload.old as Agent).id);
+            }
+            break;
+          default:
+            break;
+        }
+        return prevAgents; // Jika tidak ada perubahan atau jenis event tidak dikenal
+      });
+    };
+
+    const unsubscribe = subscribeToAgents(handleRealtimeUpdate);
+
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
   }, []);
 
   const handleCreateAgent = (newAgent: Agent) => {

@@ -1,12 +1,12 @@
 // NOTE PENANDA: queries/skills.ts
 // Service untuk interaksi CRUD dengan tabel 'skills' di Supabase.
 
-import { createClient } from '@/lib/supabase-client';
+import { supabase } from '@/lib/supabase-client';
 import type { Skill } from '@/lib/supabase-client'; // Import tipe Agent dari supabase-client
 
 // Mendapatkan semua skills
 export async function getSkills(): Promise<Skill[]> {
-  const supabase = createClient();
+  // const supabase = createClient(); // Baris ini tidak lagi diperlukan
   const { data, error } = await supabase.from('skills').select('*').order('created_at', { ascending: false });
 
   if (error) {
@@ -18,7 +18,7 @@ export async function getSkills(): Promise<Skill[]> {
 
 // Membuat skill baru
 export async function createSkill(newSkillData: Omit<Skill, 'id' | 'created_at' | 'updated_at'>): Promise<Skill | null> {
-  const supabase = createClient();
+  // const supabase = createClient(); // Baris ini tidak lagi diperlukan
   const { data, error } = await supabase
     .from('skills')
     .insert([newSkillData])
@@ -34,7 +34,7 @@ export async function createSkill(newSkillData: Omit<Skill, 'id' | 'created_at' 
 
 // Memperbarui skill yang sudah ada
 export async function updateSkill(skillId: string, updatedSkillData: Partial<Omit<Skill, 'id' | 'created_at'>>): Promise<Skill | null> {
-  const supabase = createClient();
+  // const supabase = createClient(); // Baris ini tidak lagi diperlukan
   const { data, error } = await supabase
     .from('skills')
     .update(updatedSkillData)
@@ -51,7 +51,7 @@ export async function updateSkill(skillId: string, updatedSkillData: Partial<Omi
 
 // Menghapus skill
 export async function deleteSkill(skillId: string): Promise<boolean> {
-  const supabase = createClient();
+  // const supabase = createClient(); // Baris ini tidak lagi diperlukan
   const { error } = await supabase.from('skills').delete().eq('id', skillId);
 
   if (error) {
@@ -59,4 +59,29 @@ export async function deleteSkill(skillId: string): Promise<boolean> {
     throw error;
   }
   return true;
+}
+
+/**
+ * Subscribe to skill changes (real-time)
+ */
+export function subscribeToSkills(
+  callback: (payload: {eventType: string, new: Skill | null, old: Skill | null, errors: any[] | null}) => void
+): (() => void) | null {
+  try {
+    const subscription = supabase
+      .channel('skills-changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'skills' }, (payload) => {
+        // Panggil callback dengan payload Supabase secara langsung
+        callback(payload as {eventType: string, new: Skill | null, old: Skill | null, errors: any[] | null});
+      })
+      .subscribe();
+
+    // Return unsubscribe function
+    return () => {
+      subscription.unsubscribe();
+    };
+  } catch (err) {
+    console.error('Failed to subscribe to skills:', err);
+    return null;
+  }
 }

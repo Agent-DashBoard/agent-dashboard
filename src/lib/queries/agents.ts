@@ -180,15 +180,16 @@ export async function deleteAgent(agentId: string): Promise<boolean> {
  * Subscribe to agent status changes (real-time)
  */
 export function subscribeToAgents(
-  callback: (agents: Agent[]) => void
+  callback: (payload: {eventType: string, new: Agent | null, old: Agent | null, errors: any[] | null}) => void
 ): (() => void) | null {
   try {
     const subscription = supabase
       .channel('agents-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'agents' }, () => {
-        getAgents().then(callback)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'agents' }, (payload) => {
+        // Panggil callback dengan payload Supabase secara langsung
+        callback(payload as {eventType: string, new: Agent | null, old: Agent | null, errors: any[] | null});
       })
-      .subscribe()
+      .subscribe();
 
     // Return unsubscribe function
     return () => {

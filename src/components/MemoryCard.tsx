@@ -3,7 +3,7 @@
 // Menampilkan memory items dengan tags, timestamp, dan relevance score
 
 import { Badge } from '@/components/ui/badge'
-import { Eye, Edit } from 'lucide-react'
+import { Eye, Edit, Trash2 } from 'lucide-react'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Button } from '@/components/ui/button'
 
@@ -15,6 +15,9 @@ interface MemoryCardProps {
   timestamp: string
   relevance: number // 0-100
   status: 'active' | 'archived' | 'important'
+  onView: (id: string) => void;
+  onEdit: (id: string) => void;
+  onDelete: (id: string) => void;
 }
 
 export function MemoryCard({
@@ -25,6 +28,9 @@ export function MemoryCard({
   timestamp,
   relevance,
   status,
+  onView,
+  onEdit,
+  onDelete,
 }: MemoryCardProps) {
   const statusConfig = {
     active: { bg: 'bg-blue-500/20', text: 'text-blue-400', label: 'Active' },
@@ -88,11 +94,17 @@ export function MemoryCard({
       <div className="flex items-center justify-between pt-3 border-t border-zinc-800 mt-auto">
         <span className="text-xs text-zinc-500">{timestamp}</span>
         <div className="flex gap-2">
-          <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-zinc-400 hover:text-white hover:bg-zinc-800">
+          <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-zinc-400 hover:text-white hover:bg-zinc-800"
+            onClick={(e) => { e.stopPropagation(); onView(id); }}>
             <Eye size={16} />
           </Button>
-          <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-zinc-400 hover:text-white hover:bg-zinc-800">
+          <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-zinc-400 hover:text-white hover:bg-zinc-800"
+            onClick={(e) => { e.stopPropagation(); onEdit(id); }}>
             <Edit size={16} />
+          </Button>
+          <Button variant="destructive" size="sm" className="h-7 w-7 p-0 bg-red-600 hover:bg-red-700 text-white shadow-md shadow-red-500/20"
+            onClick={(e) => { e.stopPropagation(); onDelete(id); }}>
+            <Trash2 size={16} />
           </Button>
         </div>
       </div>

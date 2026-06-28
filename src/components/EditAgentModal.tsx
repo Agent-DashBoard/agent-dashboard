@@ -4,7 +4,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { XCircle } from 'lucide-react';
+import { Plus, XCircle } from 'lucide-react'; // Tambahkan Plus
 import { Button } from './ui/button';
 import { updateAgent } from '@/lib/queries/agents';
 import type { Agent } from '@/lib/supabase-client';
