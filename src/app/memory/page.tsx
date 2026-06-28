@@ -8,9 +8,14 @@ import { useEffect, useState } from 'react'
 import { MemoryCard } from '@/components/MemoryCard'
 import { MemorySearchResults } from '@/components/MemorySearchResults'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
-import { Search, Filter } from 'lucide-react'
-import { getMemories } from '@/lib/queries/memories'
-import { Memory } from '@/lib/supabase-client' // Import Memory interface dari supabase-client
+import { Button } from '@/components/ui/button' // IMPORT BUTTON
+import { Search, Filter, Plus, XCircle } from 'lucide-react'
+import { getMemories, createMemory, updateMemory, deleteMemory } from '@/lib/queries/memories' // Import CRUD functions
+import type { Memory } from '@/lib/supabase-client' // Import Memory interface dari supabase-client
+import { CreateMemoryModal } from '@/components/CreateMemoryModal' // Import CreateMemoryModal
+import { EditMemoryModal } from '@/components/EditMemoryModal' // Import EditMemoryModal
+import { DeleteMemoryConfirm } from '@/components/DeleteMemoryConfirm' // Import DeleteMemoryConfirm
+import { ViewMemoryModal } from '@/components/ViewMemoryModal' // Import ViewMemoryModal
 
 export default function MemoryPage() {
   const [memories, setMemories] = useState<Memory[]>([])
@@ -20,6 +25,10 @@ export default function MemoryPage() {
   const [selectedFilter, setSelectedFilter] = useState<
     'all' | 'active' | 'archived' | 'important'
   >('all')
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false) // State untuk modal create
+  const [selectedMemoryToEdit, setSelectedMemoryToEdit] = useState<Memory | null>(null); // State untuk memory yang akan diedit
+  const [memoryToDeleteId, setMemoryToDeleteId] = useState<string | null>(null); // State untuk ID memory yang akan dihapus
+  const [selectedMemoryToView, setSelectedMemoryToView] = useState<Memory | null>(null); // State untuk memory yang akan dilihat detailnya
 
   useEffect(() => {
     const fetchMemoriesData = async () => {
@@ -52,14 +61,66 @@ export default function MemoryPage() {
     return matchesSearch && matchesFilter
   })
 
+  const handleCreateMemory = (newMemory: Memory) => {
+    setMemories((prev) => [...prev, newMemory]);
+    setIsCreateModalOpen(false);
+  };
+
+  const handleEditClick = (memoryId: string) => {
+    const memory = memories.find(m => m.id === memoryId);
+    if (memory) {
+      setSelectedMemoryToEdit(memory);
+    }
+  };
+
+  const handleDeleteClick = (memoryId: string) => {
+    setMemoryToDeleteId(memoryId);
+  };
+
+  const handleViewClick = (memoryId: string) => {
+    const memory = memories.find(m => m.id === memoryId);
+    if (memory) {
+      setSelectedMemoryToView(memory);
+    }
+  };
+
+  const handleUpdateMemory = (updatedMemory: Memory) => {
+    setMemories((prev) => prev.map(mem => (mem.id === updatedMemory.id ? updatedMemory : mem)));
+    setSelectedMemoryToEdit(null);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!memoryToDeleteId) return;
+
+    try {
+      const success = await deleteMemory(memoryToDeleteId);
+      if (success) {
+        setMemories((prev) => prev.filter(mem => mem.id !== memoryToDeleteId));
+        setMemoryToDeleteId(null);
+      } else {
+        setError("Gagal menghapus memori.");
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Terjadi kesalahan saat menghapus memori.");
+    }
+  };
+
+
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-white">Memory</h1>
-        <p className="text-sm text-zinc-400 mt-1">
-          Ingatan penting tentang proyek, user preference, dan insights yang sudah dikumpulkan.
-        </p>
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-3xl font-bold text-white">Memory</h1>
+          <p className="text-sm text-zinc-400 mt-1">
+            Ingatan penting tentang proyek, user preference, dan insights yang sudah dikumpulkan.
+          </p>
+        </div>
+        <Button variant="default" size="sm" className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-md shadow-blue-500/20"
+          onClick={() => setIsCreateModalOpen(true)}>
+          <Plus className="h-4 w-4 mr-2" />
+          Buat Memori Baru
+        </Button>
       </div>
 
       {/* Main Search and Filter Section */}
@@ -111,7 +172,11 @@ export default function MemoryPage() {
       {!loading && filteredMemories.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredMemories.map((memory) => (
-            <MemoryCard key={memory.id} {...memory} />
+            <MemoryCard key={memory.id} {...memory}
+              onView={handleViewClick} // Meneruskan onView
+              onEdit={handleEditClick}
+              onDelete={handleDeleteClick}
+            />
           ))}
         </div>
       )}
@@ -123,6 +188,42 @@ export default function MemoryPage() {
             Menampilkan {filteredMemories.length} dari {memories.length} ingatan
           </p>
         </div>
+      )}
+
+      {/* Create Memory Modal */}
+      <CreateMemoryModal
+        isOpen={isCreateModalOpen}
+        onClose={() => setIsCreateModalOpen(false)}
+        onMemoryCreated={handleCreateMemory}
+      />
+
+      {/* Edit Memory Modal */}
+      {selectedMemoryToEdit && (
+        <EditMemoryModal
+          isOpen={!!selectedMemoryToEdit}
+          onClose={() => setSelectedMemoryToEdit(null)}
+          memory={selectedMemoryToEdit}
+          onMemoryUpdated={handleUpdateMemory}
+        />
+      )}
+
+      {/* Delete Memory Confirmation Modal */}
+      {memoryToDeleteId && (
+        <DeleteMemoryConfirm
+          isOpen={!!memoryToDeleteId}
+          onClose={() => setMemoryToDeleteId(null)}
+          onConfirm={handleConfirmDelete}
+          memoryId={memoryToDeleteId}
+        />
+      )}
+
+      {/* View Memory Modal */}
+      {selectedMemoryToView && (
+        <ViewMemoryModal
+          isOpen={!!selectedMemoryToView}
+          onClose={() => setSelectedMemoryToView(null)}
+          memory={selectedMemoryToView}
+        />
       )}
     </div>
   )
