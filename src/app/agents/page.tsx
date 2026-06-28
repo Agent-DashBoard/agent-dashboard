@@ -5,17 +5,11 @@
 
 import { useEffect, useState } from "react";
 import { PageWrapper } from "@/components/PageWrapper";
+import { LoadingSpinner } from "@/components/LoadingSpinner";
 import { Zap } from "lucide-react";
-import { supabase } from "@/lib/supabase";
 import { AgentTaskPanel } from "@/components/AgentTaskPanel";
-
-type Agent = {
-  id: string;
-  name: string;
-  description: string;
-  status: "online" | "offline" | "busy";
-  created_at: string;
-};
+import { getAgents } from "@/lib/queries/agents";
+import type { Agent } from "@/lib/supabase-client";
 
 function AgentCard({ name, description, status }: Agent) {
     const statusConfig = {
@@ -59,13 +53,11 @@ export default function AgentsPage() {
   useEffect(() => {
     const fetchAgents = async () => {
       try {
-        const { data, error } = await supabase
-          .from("agents")
-          .select("*");
+        setLoading(true);
+        setError(null);
 
-        if (error) throw error;
-
-        setAgents(data || []);
+        const data = await getAgents();
+        setAgents(data);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Gagal fetch agents");
       } finally {
@@ -85,8 +77,12 @@ export default function AgentsPage() {
         {/* Agents List Section */}
         <div>
           <h2 className="text-lg font-semibold text-white mb-4">Registered Agents</h2>
-          {loading && <p className="text-zinc-400">Loading agents...</p>}
-          {error && <p className="text-red-500">Error: {error}</p>}
+          {loading && <LoadingSpinner text="Loading agents from Supabase..." />}
+          {error && (
+            <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-300">
+              Error: {error}
+            </div>
+          )}
 
           {!loading && agents.length === 0 && (
             <p className="text-zinc-400">Tidak ada agents.</p>

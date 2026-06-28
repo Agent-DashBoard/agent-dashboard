@@ -107,17 +107,19 @@ export async function storeMemory(item: MemoryItem): Promise<void> {
     const embedding = item.embedding || generateMockEmbedding(item.content)
 
     // Store in Pinecone
-    await index.upsert([
-      {
-        id: item.id,
-        values: embedding,
-        metadata: {
-          content: item.content,
-          timestamp: item.timestamp,
-          ...item.metadata,
+    await index.upsert({
+      records: [
+        {
+          id: item.id,
+          values: embedding,
+          metadata: {
+            content: item.content,
+            timestamp: item.timestamp,
+            ...item.metadata,
+          },
         },
-      },
-    ])
+      ],
+    })
   } catch (error) {
     console.error('Error storing memory in Pinecone:', error)
     // Continue without Pinecone in development
@@ -161,7 +163,7 @@ export async function deleteMemory(id: string): Promise<void> {
   try {
     const client = getPineconeClient()
     const index = client.Index(indexName)
-    await index.deleteOne(id)
+    await index.deleteOne({ id })
   } catch (error) {
     console.error('Error deleting memory:', error)
   }

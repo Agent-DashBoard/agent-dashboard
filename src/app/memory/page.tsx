@@ -4,83 +4,41 @@
 
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { MemoryCard } from '@/components/MemoryCard'
 import { MemorySearchResults } from '@/components/MemorySearchResults'
+import { LoadingSpinner } from '@/components/LoadingSpinner'
 import { Search, Filter } from 'lucide-react'
-
-// Mock memory data
-const MOCK_MEMORIES = [
-  {
-    id: '1',
-    title: 'BangBay prefers direct, concise responses',
-    content:
-      'User strongly dislikes lengthy explanations. Always be to-the-point and avoid filler content.',
-    tags: ['user-preference', 'communication', 'style'],
-    timestamp: '2 hours ago',
-    relevance: 95,
-    status: 'important' as const,
-  },
-  {
-    id: '2',
-    title: 'HERMES JARVIS OS stack: Next.js + TypeScript + Supabase',
-    content:
-      'Tech stack chosen for project: Next.js 14+, TypeScript, Tailwind CSS, Supabase PostgreSQL, Claude API, Pinecone for vectors.',
-    tags: ['tech-stack', 'hermes-os', 'architecture'],
-    timestamp: '1 day ago',
-    relevance: 88,
-    status: 'active' as const,
-  },
-  {
-    id: '3',
-    title: 'Monetization focus: Rp999-1,500 per video for AI tools',
-    content:
-      'BangBay targets digital creative ID market. Expects pricing competitive with cheap AI video bots. Focus on ROI and cuan.',
-    tags: ['monetization', 'pricing', 'business-model'],
-    timestamp: '3 days ago',
-    relevance: 82,
-    status: 'active' as const,
-  },
-  {
-    id: '4',
-    title: 'Chunked Write Protocol: MAX 350 lines per operation',
-    content:
-      'Critical constraint: Server timeout 2-3 min. Never exceed 350 lines in single write. Multiple small ops > one large op.',
-    tags: ['protocol', 'constraint', 'development'],
-    timestamp: '1 day ago',
-    relevance: 92,
-    status: 'important' as const,
-  },
-  {
-    id: '5',
-    title: 'Agents created: HERMES-AGENT, OPENCLAW, CODE-GENIUS',
-    content:
-      'Three agents initialized in Supabase. HERMES-AGENT (coordinator), OPENCLAW (web scraping), CODE-GENIUS (coding specialist).',
-    tags: ['agents', 'supabase', 'setup'],
-    timestamp: '5 hours ago',
-    relevance: 75,
-    status: 'active' as const,
-  },
-  {
-    id: '6',
-    title: 'Supabase anon key issue resolved - RLS policy created',
-    content:
-      'Fixed 401 error by using correct API key (anon not publishable). Created RLS policy for SELECT access on agents table.',
-    tags: ['debugging', 'supabase', 'api-keys'],
-    timestamp: '2 hours ago',
-    relevance: 70,
-    status: 'archived' as const,
-  },
-]
+import { getMemories } from '@/lib/queries/memories'
+import { Memory } from '@/lib/supabase-client' // Import Memory interface dari supabase-client
 
 export default function MemoryPage() {
+  const [memories, setMemories] = useState<Memory[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedFilter, setSelectedFilter] = useState<
     'all' | 'active' | 'archived' | 'important'
   >('all')
 
+  useEffect(() => {
+    const fetchMemoriesData = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        const data = await getMemories()
+        setMemories(data)
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Failed to fetch memories')
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchMemoriesData()
+  }, [])
+
   // Filter memories
-  const filteredMemories = MOCK_MEMORIES.filter((memory) => {
+  const filteredMemories = memories.filter((memory) => {
     const matchesSearch =
       memory.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       memory.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -148,21 +106,30 @@ export default function MemoryPage() {
 
           {/* Memory Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {filteredMemories.length > 0 ? (
-              filteredMemories.map((memory) => (
+            {loading && <LoadingSpinner text="Loading memories from Supabase..." />}
+          {error && (
+            <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-4 text-sm text-red-300">
+              Error: {error}
+            </div>
+          )}
+
+          {!loading && filteredMemories.length === 0 && (
+            <p className="text-zinc-400">Tidak ada memories yang cocok.</p>
+          )}
+
+          {!loading && filteredMemories.length > 0 && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {filteredMemories.map((memory) => (
                 <MemoryCard key={memory.id} {...memory} />
-              ))
-            ) : (
-              <div className="col-span-full text-center py-12">
-                <p className="text-zinc-500">Tidak ada memories yang cocok.</p>
-              </div>
-            )}
+              ))}
+            </div>
+          )}
           </div>
 
           {/* Stats */}
           <div className="pt-4 border-t border-zinc-800">
             <p className="text-xs text-zinc-500">
-              Menampilkan {filteredMemories.length} dari {MOCK_MEMORIES.length} memories
+              Menampilkan {filteredMemories.length} dari {memories.length} memories
             </p>
           </div>
         </div>

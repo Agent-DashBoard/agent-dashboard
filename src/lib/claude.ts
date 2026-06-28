@@ -84,7 +84,7 @@ export async function sendMessage(params: MessageParams): Promise<ChatResponse> 
 
     return {
       content: responseText,
-      stopReason: message.stop_reason,
+      stopReason: message.stop_reason ?? 'unknown',
       inputTokens: message.usage.input_tokens,
       outputTokens: message.usage.output_tokens,
       costUsd,
