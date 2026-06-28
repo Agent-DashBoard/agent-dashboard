@@ -103,7 +103,7 @@ export function ChatPanel() {
       </div>
 
       {/* Messages Container */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-hide">
         {messages.length === 0 && !isLoading && (
           <div className="flex flex-col items-center justify-center h-full text-center">
             <p className="text-zinc-500 text-sm">

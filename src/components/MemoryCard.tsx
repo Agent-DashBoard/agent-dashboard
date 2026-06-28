@@ -39,7 +39,7 @@ export function MemoryCard({
   const config = statusConfig[status]
 
   return (
-    <div className="relative group rounded-lg border border-zinc-800 bg-zinc-900/50 p-4 hover:border-zinc-700 hover:bg-zinc-900/80 transition-all duration-200 flex flex-col justify-between h-full">
+    <div className="relative group rounded-lg border border-zinc-800 bg-zinc-900/50 p-4 hover:border-blue-700 hover:bg-zinc-900/80 hover:shadow-lg hover:shadow-blue-500/20 transition-all duration-200 flex flex-col justify-between h-full">
       {/* Header: Title + Status Badge + Relevance */}
       <div className="flex flex-col mb-3">
         <div className="flex items-center justify-between mb-2">

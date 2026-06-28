@@ -9,9 +9,9 @@ import { TrendingUp, Zap, Activity, Users } from 'lucide-react'
 
 export default function HomePage() {
   return (
-    <div className="space-y-6">
+    <div className="flex flex-col h-full"> {/* Root div takes full height */}
       {/* Header */}
-      <div>
+      <div className="mb-8">
         <h1 className="text-3xl font-bold text-white">Dashboard</h1>
         <p className="text-sm text-zinc-400 mt-1">
           Selamat datang di HERMES JARVIS OS — AI Agent Management System
@@ -19,7 +19,7 @@ export default function HomePage() {
       </div>
 
       {/* Quick Stats */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
         <div className="rounded-lg border border-zinc-800 bg-zinc-900/50 p-4">
           <div className="flex items-center justify-between">
             <div>
@@ -62,9 +62,9 @@ export default function HomePage() {
       </div>
 
       {/* Main Content: Chat + Info */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="flex-1 grid grid-cols-1 lg:grid-cols-3 gap-6 overflow-hidden">
         {/* Chat Panel - Takes 2 columns */}
-        <div className="lg:col-span-2">
+        <div className="lg:col-span-2 flex flex-col min-h-0"> {/* min-h-0 untuk flex item */}
           <ChatPanel />
         </div>
 

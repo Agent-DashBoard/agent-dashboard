@@ -146,7 +146,8 @@ export function AgentTaskPanel() {
                           isExecuting ||
                           selectedAgent.status === 'offline'
                         }
-                        className="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                          className="flex items-center gap-2 px-3 py-2 rounded-lg text-white text-xs font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-colors
+                           bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 shadow-lg shadow-blue-500/20"
                       >
                         {isExecuting ? (
                           <Loader2 className="w-3 h-3 animate-spin" />
