@@ -102,17 +102,16 @@ export async function updateAgentStatus(
 /**
  * Create new agent
  */
-export async function createAgent(agent: Omit<Agent, 'id' | 'created_at'>): Promise<Agent | null> {
+export async function createAgent(agent: Omit<Agent, 'id' | 'created_at' | 'status' | 'updated_at'> & { status?: 'online' | 'offline' | 'busy' }): Promise<Agent | null> {
   try {
     const { data, error } = await supabase
       .from('agents')
       .insert([
         {
           name: agent.name,
-          role: agent.role,
-          status: agent.status,
-          description: agent.description,
-          created_at: new Date().toISOString(),
+          description: agent.description, // Menambahkan deskripsi
+          status: agent.status || 'offline', // Default status jika tidak ada
+          config: agent.config || {}, // Default config jika tidak ada
         },
       ])
       .select()
@@ -127,6 +126,31 @@ export async function createAgent(agent: Omit<Agent, 'id' | 'created_at'>): Prom
   } catch (err) {
     console.error('Failed to create agent:', err)
     return null
+  }
+}
+
+/**
+ * Update agent
+ */
+export async function updateAgent(
+  agentId: string,
+  updates: Partial<Omit<Agent, 'id' | 'created_at'>>
+): Promise<boolean> {
+  try {
+    const { error } = await supabase
+      .from('agents')
+      .update({ ...updates, updated_at: new Date().toISOString() })
+      .eq('id', agentId)
+
+    if (error) {
+      console.error('Error updating agent:', error.message)
+      return false
+    }
+
+    return true
+  } catch (err) {
+    console.error('Failed to update agent:', err)
+    return false
   }
 }
 
