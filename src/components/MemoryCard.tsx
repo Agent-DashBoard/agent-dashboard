@@ -3,6 +3,9 @@
 // Menampilkan memory items dengan tags, timestamp, dan relevance score
 
 import { Badge } from '@/components/ui/badge'
+import { Eye, Edit } from 'lucide-react'
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Button } from '@/components/ui/button'
 
 interface MemoryCardProps {
   id: string
@@ -36,62 +39,62 @@ export function MemoryCard({
   const config = statusConfig[status]
 
   return (
-    <div className="group rounded-lg border border-zinc-800 bg-zinc-900/50 p-4 hover:border-zinc-700 hover:bg-zinc-900/80 transition-all duration-200">
-      {/* Header: Title + Status Badge */}
-      <div className="flex items-start justify-between mb-3">
-        <h3 className="text-sm font-semibold text-white flex-1 line-clamp-2">
-          {title}
-        </h3>
-        <Badge className={`ml-2 ${config.bg} ${config.text} border-0`}>
-          {config.label}
-        </Badge>
-      </div>
-
-      {/* Content Preview */}
-      <p className="text-xs text-zinc-400 line-clamp-2 mb-3">{content}</p>
-
-      {/* Tags */}
-      <div className="flex flex-wrap gap-1 mb-3">
-        {tags.slice(0, 3).map((tag) => (
-          <span
-            key={tag}
-            className="text-xs px-2 py-1 rounded bg-zinc-800/50 text-zinc-300 hover:bg-zinc-700/50 cursor-pointer transition-colors"
-          >
-            #{tag}
-          </span>
-        ))}
-        {tags.length > 3 && (
-          <span className="text-xs px-2 py-1 text-zinc-500">
-            +{tags.length - 3}
-          </span>
-        )}
-      </div>
-
-      {/* Footer: Relevance + Timestamp */}
-      <div className="flex items-center justify-between pt-3 border-t border-zinc-800">
-        <div className="flex-1">
-          <div className="text-xs text-zinc-500 mb-1">Relevance</div>
-          <div className="w-full bg-zinc-800 rounded-full h-1.5">
+    <div className="relative group rounded-lg border border-zinc-800 bg-zinc-900/50 p-4 hover:border-zinc-700 hover:bg-zinc-900/80 transition-all duration-200 flex flex-col justify-between h-full">
+      {/* Header: Title + Status Badge + Relevance */}
+      <div className="flex flex-col mb-3">
+        <div className="flex items-center justify-between mb-2">
+          <h3 className="text-base font-semibold text-white flex-1 line-clamp-2 pr-2">
+            {title}
+          </h3>
+          <Badge className={`ml-2 ${config.bg} ${config.text} border-0 text-xs`}>
+            {config.label}
+          </Badge>
+        </div>
+        <div className="flex items-center text-xs text-zinc-500 mb-2">
+          <span className="mr-1">Relevance:</span>
+          <div className="w-full bg-zinc-800 rounded-full h-1.5 flex-1 mr-1">
             <div
-              className="bg-gradient-to-r from-blue-500 to-purple-500 h-1.5 rounded-full transition-all"
+              className="bg-gradient-to-r from-blue-500 to-purple-500 h-1.5 rounded-full transition-all duration-200"
               style={{ width: `${relevance}%` }}
             />
           </div>
+          <span>{relevance}%</span>
         </div>
-        <span className="text-xs text-zinc-500 ml-2">{relevance}%</span>
       </div>
 
-      {/* Timestamp */}
-      <div className="text-xs text-zinc-500 mt-3">{timestamp}</div>
+      {/* Content Preview */}
+      <p className="text-sm text-zinc-400 line-clamp-3 mb-4 flex-grow">{content}</p>
 
-      {/* Action Buttons (Hover) */}
-      <div className="flex gap-2 mt-3 opacity-0 group-hover:opacity-100 transition-opacity">
-        <button className="flex-1 text-xs py-1.5 rounded bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 transition-colors">
-          View
-        </button>
-        <button className="flex-1 text-xs py-1.5 rounded bg-zinc-800/50 text-zinc-400 hover:bg-zinc-700/50 transition-colors">
-          Edit
-        </button>
+      {/* Tags */}
+      {tags && tags.length > 0 && (
+        <div className="flex flex-wrap gap-1 mb-4">
+          {tags.slice(0, 3).map((tag) => (
+            <span
+              key={tag}
+              className="text-xs px-2 py-0.5 rounded bg-zinc-800/50 text-zinc-300 hover:bg-zinc-700/50 cursor-pointer transition-colors duration-200"
+            >
+              #{tag}
+            </span>
+          ))}
+          {tags.length > 3 && (
+            <span className="text-xs px-2 py-0.5 text-zinc-500">
+              +{tags.length - 3}
+            </span>
+          )}
+        </div>
+      )}
+
+      {/* Footer: Timestamp + Action Buttons */}
+      <div className="flex items-center justify-between pt-3 border-t border-zinc-800 mt-auto">
+        <span className="text-xs text-zinc-500">{timestamp}</span>
+        <div className="flex gap-2">
+          <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-zinc-400 hover:text-white hover:bg-zinc-800">
+            <Eye size={16} />
+          </Button>
+          <Button variant="ghost" size="sm" className="h-7 w-7 p-0 text-zinc-400 hover:text-white hover:bg-zinc-800">
+            <Edit size={16} />
+          </Button>
+        </div>
       </div>
     </div>
   )
