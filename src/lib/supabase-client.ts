@@ -102,11 +102,6 @@ export type Database = {
         Insert: Omit<Activity, 'id' | 'created_at'>
         Update: Partial<Omit<Activity, 'id' | 'created_at'>>
       }
-      activities: { // Tambahkan tabel activities di sini
-        Row: Activity
-        Insert: Omit<Activity, 'id' | 'created_at'>
-        Update: Partial<Omit<Activity, 'id' | 'created_at'>>
-      }
       chat_messages: {
         Row: ChatMessage
         Insert: Omit<ChatMessage, 'id' | 'created_at'>
