@@ -9,7 +9,7 @@ import { LoadingSpinner } from '@/components/LoadingSpinner';
 import { Button } from '@/components/ui/button'; // Import Button component
 import { Search, Filter, Plus, XCircle } from 'lucide-react'; // Import ikon
 import { SkillCard } from '@/components/SkillCard'; // Import SkillCard
-import { getSkills, createSkill, updateSkill, deleteSkill } from '@/lib/queries/skills'; // Import CRUD functions
+import { getSkills, createSkill, updateSkill, deleteSkill, subscribeToSkills } from '@/lib/queries/skills'; // Import CRUD functions dan subscribeToSkills
 import type { Skill } from '@/lib/supabase-client'; // Import Skill interface
 import { CreateSkillModal } from '@/components/CreateSkillModal'; // Import CreateSkillModal
 import { EditSkillModal } from '@/components/EditSkillModal'; // Import EditSkillModal
@@ -45,6 +45,46 @@ export default function SkillsPage() {
       }
     };
     fetchSkillsData();
+
+    // NOTE PENANDA: Integrasi Realtime Supabase
+    const handleRealtimeUpdate = (payload: {eventType: string, new: Skill | null, old: Skill | null, errors: any[] | null}) => {
+      setSkills((prevSkills) => {
+        switch (payload.eventType) {
+          case 'INSERT':
+            if (payload.new) {
+              const newSkill = payload.new as Skill;
+              // Mencegah duplikasi jika sudah dihandle oleh onSkillCreated
+              if (!prevSkills.some(skill => skill.id === newSkill.id)) {
+                return [...prevSkills, newSkill];
+              }
+            }
+            break;
+          case 'UPDATE':
+            if (payload.new) {
+              return prevSkills.map((skill) =>
+                skill.id === (payload.new as Skill).id ? (payload.new as Skill) : skill
+              );
+            }
+            break;
+          case 'DELETE':
+            if (payload.old) {
+              return prevSkills.filter((skill) => skill.id !== (payload.old as Skill).id);
+            }
+            break;
+          default:
+            break;
+        }
+        return prevSkills; // Jika tidak ada perubahan atau jenis event tidak dikenal
+      });
+    };
+
+    const unsubscribe = subscribeToSkills(handleRealtimeUpdate);
+
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
   }, []);
 
   // Filter skills

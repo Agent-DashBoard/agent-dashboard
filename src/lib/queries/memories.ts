@@ -189,13 +189,14 @@ export async function deleteMemory(memoryId: string): Promise<boolean> {
  * Subscribe to memory changes (real-time)
  */
 export function subscribeToMemories(
-  callback: (memories: Memory[]) => void
+  callback: (payload: {eventType: string, new: Memory | null, old: Memory | null, errors: any[] | null}) => void
 ): (() => void) | null {
   try {
     const subscription = supabase
       .channel('memories-changes')
-      .on('postgres_changes', { event: '*', schema: 'public', table: 'memories' }, () => {
-        getMemories().then(callback)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'memories' }, (payload) => {
+        // Panggil callback dengan payload Supabase secara langsung
+        callback(payload as {eventType: string, string, new: Memory | null, old: Memory | null, errors: any[] | null});
       })
       .subscribe()
 

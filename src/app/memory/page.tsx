@@ -10,7 +10,7 @@ import { MemorySearchResults } from '@/components/MemorySearchResults'
 import { LoadingSpinner } from '@/components/LoadingSpinner'
 import { Button } from '@/components/ui/button' // IMPORT BUTTON
 import { Search, Filter, Plus, XCircle } from 'lucide-react'
-import { getMemories, createMemory, updateMemory, deleteMemory } from '@/lib/queries/memories' // Import CRUD functions
+import { getMemories, createMemory, updateMemory, deleteMemory, subscribeToMemories } from '@/lib/queries/memories' // Import CRUD functions dan subscribeToMemories
 import type { Memory } from '@/lib/supabase-client' // Import Memory interface dari supabase-client
 import { CreateMemoryModal } from '@/components/CreateMemoryModal' // Import CreateMemoryModal
 import { EditMemoryModal } from '@/components/EditMemoryModal' // Import EditMemoryModal
@@ -44,6 +44,46 @@ export default function MemoryPage() {
       }
     }
     fetchMemoriesData()
+
+    // NOTE PENANDA: Integrasi Realtime Supabase
+    const handleRealtimeUpdate = (payload: {eventType: string, new: Memory | null, old: Memory | null, errors: any[] | null}) => {
+      setMemories((prevMemories) => {
+        switch (payload.eventType) {
+          case 'INSERT':
+            if (payload.new) {
+              const newMemory = payload.new as Memory;
+              // Mencegah duplikasi jika sudah dihandle oleh onMemoryCreated
+              if (!prevMemories.some(mem => mem.id === newMemory.id)) {
+                return [...prevMemories, newMemory];
+              }
+            }
+            break;
+          case 'UPDATE':
+            if (payload.new) {
+              return prevMemories.map((mem) =>
+                mem.id === (payload.new as Memory).id ? (payload.new as Memory) : mem
+              );
+            }
+            break;
+          case 'DELETE':
+            if (payload.old) {
+              return prevMemories.filter((mem) => mem.id !== (payload.old as Memory).id);
+            }
+            break;
+          default:
+            break;
+        }
+        return prevMemories; // Jika tidak ada perubahan atau jenis event tidak dikenal
+      });
+    };
+
+    const unsubscribe = subscribeToMemories(handleRealtimeUpdate);
+
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
   }, [])
 
   // Filter memories
