@@ -83,3 +83,7 @@ AGENT-DASHBOARD/
 
     Pasword SupaBase : Cipandan.86
     https://claude-code-curriculum-deploy.vercel.app/
+
+    git add .
+    git commit -m "nama update nya"
+    git push
